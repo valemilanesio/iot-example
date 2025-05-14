@@ -1,12 +1,24 @@
-# version: '3.8' # Esto ya no es necesario
-
 services:
-  emqx:
-    image: emqx/emqx:5.4
-    container_name: emqx
+  # vernemq:
+  #     image: vernemq/vernemq:latest
+  #     container_name: vernemq
+  #     ports:
+  #       - "1883:1883"
+  #       - "8888:8888"  # Dashboard HTTP
+  #     environment:
+  #       - DOCKER_VERNEMQ_ACCEPT_EULA=yes
+  #       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+  #       - DOCKER_VERNEMQ_LISTENER__TCP__ALLOWED_PROTOCOL_VERSIONS=3,4,5
+
+  fluentbit:
+    image: cr.fluentbit.io/fluent/fluent-bit:2.2
+    container_name: fluentbit
+    volumes:
+      - ./fluentbit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./fluentbit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
     ports:
-      - "1883:1883"      # MQTT
-      - "18083:18083"    # Dashboard EMQX
+      - "1883:1883"  # MQTT
+      - "2020:2020"  # optional: HTTP API para debug
 
   influxdb:
     image: influxdb:2.7
@@ -23,25 +35,25 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=iot_data
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=mytoken
 
-  telegraf:
-    image: telegraf:1.30
-    container_name: telegraf
-    restart: unless-stopped
-    depends_on:
-      - influxdb
-      - emqx
-    volumes:
-      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+  # telegraf:
+  #   image: telegraf:1.30
+  #   container_name: telegraf
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - influxdb
+  #     - emqx
+  #   volumes:
+  #     - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
 
-  grafana:
-    image: grafana/grafana-oss:10.2.3
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    depends_on:
-      - influxdb
-    volumes:
-      - grafana_data:/var/lib/grafana
+  # grafana:
+  #   image: grafana/grafana-oss:10.2.3
+  #   container_name: grafana
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - influxdb
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
 
   # streamlit:
   #   build: ./streamlit
