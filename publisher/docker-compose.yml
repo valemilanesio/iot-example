@@ -1,0 +1,6 @@
+services:
+  publisher:
+    build: .
+    container_name: publisher
+    environment:
+      - MQTT_BROKER=192.168.1.5  # Cambiá esta IP según el broker

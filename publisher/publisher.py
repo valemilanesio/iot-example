@@ -1,8 +1,10 @@
+import os
 import psutil
 import paho.mqtt.client as mqtt
 import time
 
-BROKER = "localhost"
+
+BROKER = os.getenv("MQTT_BROKER")
 PORT = 1883
 TOPICS = {
     "cpu_temp": "sensors/cpu/temperature",
